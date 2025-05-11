@@ -5,5 +5,5 @@ All you have to do is send a HIGH (5v) signal from the Raspberry Pi to those wir
 Extra code is just for keeping a log of roof state for troubleshooting. 
 Batch file works on Windows with PuTTY installed and the commands.txt file in the PuTTY directory.
 Chose a batch file for this because it can very easily be run as an instruction in NINA (https://nighttime-imaging.eu)
-Put any commands you want to be run on the Pi in the commands.txt file (ie the command to run the Python script to set the GPIO pin to high). <br>
+Put any commands you want to be run on the Pi in the commands.txt file (ie the command to run the Python script to set the GPIO pin to high). <br><br>
 Example gate opener: https://www.amazon.com/dp/B078GQCF6G (buy one that is rated a decent amount above the weight of your roof. don't ask how I know)
