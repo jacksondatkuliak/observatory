@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 config.json
+.DS_Store
