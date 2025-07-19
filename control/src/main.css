@@ -1,0 +1,26 @@
+.headerText {
+  position: relative;
+  text-decoration: none;
+  color: #eeeeee;
+  transition: color 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.headerText:hover::before {
+  transform: scaleX(1);
+}
+
+.headerText:hover {
+  color: #c0c0c0;
+  transform: translateY(-2px); /* subtle lift */
+}
+
+.headerText.active {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.pageClass {
+    width: 95%;
+    margin: auto;
+}
