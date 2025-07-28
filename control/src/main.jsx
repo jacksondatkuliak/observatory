@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { AllSkEyeSocketProvider } from "./components/AllSkEyeSocketContext";
 import ControlContent from "./control";
 import InfoContent from "./info";
 import Common from "./common";
@@ -10,11 +11,13 @@ import "@fontsource/roboto/700.css";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Common />}>
-        <Route index element={<InfoContent />} />
-        <Route path="/control" element={<ControlContent />} />
-      </Route>
-    </Routes>
+    <AllSkEyeSocketProvider>
+      <Routes>
+        <Route path="/" element={<Common />}>
+          <Route index element={<InfoContent />} />
+          <Route path="/control" element={<ControlContent />} />
+        </Route>
+      </Routes>
+    </AllSkEyeSocketProvider>
   </BrowserRouter>
 );

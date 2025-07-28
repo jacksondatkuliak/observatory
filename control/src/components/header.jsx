@@ -7,7 +7,7 @@ function Header() {
     <>
       <AppBar position="static" color="primary" elevation={1}>
         <span style={{ position: "absolute", textIndent: "0.5rem" }}>
-          Observatory Control
+          Observatory Interface
         </span>
         <Toolbar style={{ marginTop: "0.5rem" }}>
           <Typography variant="h5" component="div" sx={{ flexGrow: 0.03 }}>
