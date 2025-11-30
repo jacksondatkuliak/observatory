@@ -1,11 +1,11 @@
-roof:
-Very simple script to facilitate opening and closing of my observatories roof while I am away.
+All of the custom software I have written to run my astrophotography observatory 100% remote.
 
-Works with a cheap gate opener from Amazon. The gate openers control circuit has a place to wire in two manual control wires.
-All you have to do is send a HIGH (5v) signal from the Raspberry Pi GPIO to those wires and the gate opener will open/close.
-Extra code is just for keeping a log of roof state for troubleshooting. 
-Batch file works on Windows with PuTTY installed and the commands.txt file in the PuTTY directory.
-Chose a batch file for this because it can very easily be run as an instruction in NINA (https://nighttime-imaging.eu)
-Put any commands you want to be run on the Pi in the commands.txt file (ie the command to run the Python script to set the GPIO pin to high).
+Includes:
 
-Example gate opener: https://www.amazon.com/dp/B078GQCF6G (buy one that is rated a decent amount above the weight of your roof. don't ask how I know)
+- a server that integrates with AllSkeye to serve all sky camera images in real time
+- a control server that can be run outside the observatory to keep a database of weather readings and roof status
+- roof control scripts to control a DIY roll off roof (so you don't have to pay the egregious price for an ASCOM compliant roof opener...)
+- a raspberry pi server to read temperature/humidity values and update the control servers database periodically
+- a view client to see the status of the roof, observatory sensors, and weather information in a centralized location
+
+If you plan to use any of these scripts to run your own remote observatory, just be aware that you will have to modify the codebase to fit your needs. This is what works for me given my setup and the software I am using. This software does not include any way to control a telescope or the accessories that go on it to do astrophotography. I assume you are already using NINA or similar programs to do that. This is purely for aggregating relevant information for an observing session and controlling DIY observatory features like a rool off roof and all sky camera.

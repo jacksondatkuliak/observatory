@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from time import sleep
 from datetime import datetime
+import requests
 
 # NOTE: a roofstatus file with either "open" or "closed" being the only
 # contents of the file needs to be present in the directory of the 
@@ -14,7 +15,7 @@ from datetime import datetime
 # status to the roof log
 
 # Open file and read it's contents
-path = "/home/jackson/roof/" # input directory here
+path = "/home/you/roof/" # input directory here
 f = open(path + "roofstatus", "r")
 status = f.read()
 f.close()
@@ -27,9 +28,16 @@ dt_string = now.strftime("%m/%d/%Y %H:%M:%S") # note American mdy format
 if (status == "open"):
 	f.write("closed")
 	log.write("\n" + dt_string + " Roof closed")
+	# make post request to control server
+	data = { "roof": "closed" }
+	requests.post("http://yourserver/" + "roofupdate", json=data, timeout=5)
 elif (status == "closed"):
 	f.write("open")
 	log.write("\n" + dt_string + " Roof opened")
+	# make post request to control server
+	data = { "roof": "open" }
+	requests.post("http://yourserver/" + "roofupdate", json=data, timeout=5)
+	
 else:
 	f.write(status) # Restoring botched roof status for troubleshooting
 	log.write("\n" + dt_string + " Unable to determine roof status, sending toggle anyway : Unknown status: " + status)
@@ -57,3 +65,5 @@ GPIO.output(pin, GPIO.LOW)
 
 # Cleanup
 GPIO.cleanup()
+
+# TODO: try to POST roof update to control server 

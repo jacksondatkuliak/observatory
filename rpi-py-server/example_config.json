@@ -1,0 +1,6 @@
+{
+  "target_server_url": "http://yourserver:8080/",
+  "post_interval": 30,
+  "dht_pin": 2,
+  "roofstatus_path": "/home/you/roof/roofstatus"
+}

@@ -1,0 +1,6 @@
+{
+  "allskeyeUrl": "http://your-allskeye:3002",
+  "GOESUrlABI": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/cgl/",
+  "GOESUrlGLM": "https://cdn.star.nesdis.noaa.gov/GOES19/GLM/SECTOR/cgl/",
+  "controlUrl": "http://yourserver:8080"
+}
