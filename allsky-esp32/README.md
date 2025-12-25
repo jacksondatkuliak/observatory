@@ -1,0 +1,3 @@
+Control code that runs on an ESP32 inside my allsky camera enclosure. It controls a dew heater for the camera dome and a cooling fan to keep air circulating in the enclosure. Has 2 modes: auto and manual. In auto mode, it will calculate a dew point approximation and turn on the dew heater if it approaches that temperature. It also will automatically turn on the dew heater if it gets too cold out or the cooling fan if it gets too hot. All settings configurable in the code and through HTTP requests. All internal variables can be fetched through HTTP requests, making remote control and monitoring simple and easy.
+
+You will need to update the WiFi SSID and password in the ESP32 source code. You should also make your ESP32 have a static IP in your router settings.
