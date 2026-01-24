@@ -1,4 +1,4 @@
-import { useAllSkEyeSocket } from "./components/AllSkEyeSocketContext";
+import { useSocket } from "./components/SocketContext";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import GOESImage from "./components/GOESImage";
@@ -10,7 +10,7 @@ import ObservatoryStatus from "./components/ObservatoryStatus";
  */
 function App() {
   // allsky image
-  const { image } = useAllSkEyeSocket();
+  const { image } = useSocket();
 
   return (
     <>

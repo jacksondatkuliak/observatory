@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
-import { AllSkEyeSocketProvider } from "./components/AllSkEyeSocketContext";
+import { SocketProvider } from "./components/SocketContext.jsx";
 // material UI font
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -19,11 +19,11 @@ const darkTheme = createTheme({
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <AllSkEyeSocketProvider>
+    <SocketProvider>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <App />
       </ThemeProvider>
-    </AllSkEyeSocketProvider>
-  </StrictMode>
+    </SocketProvider>
+  </StrictMode>,
 );

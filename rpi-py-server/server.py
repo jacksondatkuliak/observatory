@@ -7,6 +7,8 @@ import threading
 import json
 import sys
 import os
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 # Expected control server endpoints exposed:
 # /dht11 for posting dht11 temp/humidity readings
@@ -24,10 +26,57 @@ except json.JSONDecodeError as e:
     sys.exit(1)
 
 # Read configuration values with defaults
-TARGET_SERVER_URL = config.get("target_server_url", "http://example.com/")
-POST_INTERVAL = config.get("post_interval", 30)
-DHT_PIN_NUMBER = config.get("dht_pin", 4)
-ROOFSTATUS_PATH = config.get("roofstatus_path", "/home/user/roof")
+TARGET_SERVER_URL = config.get("target_server_url", None)
+POST_INTERVAL = config.get("post_interval", None)
+DHT_PIN_NUMBER = config.get("dht_pin", None)
+ROOFSTATUS_PATH = config.get("roofstatus_path", None)
+WATCH_DIR = os.path.dirname(ROOFSTATUS_PATH)
+WATCH_FILE = os.path.basename(ROOFSTATUS_PATH)
+
+class FileChangeHandler(FileSystemEventHandler):
+    def __init__(self, filename):
+        self.filename = filename
+        self.last_sent = 0
+
+    def on_modified(self, event):
+        # debounce
+        if time.time() - self.last_sent < 1:
+            return
+        self.last_sent = time.time()
+
+        if not os.path.exists(ROOFSTATUS_PATH):
+            return
+
+        with open(ROOFSTATUS_PATH, "r") as f:
+            status = f.read().strip().lower()
+
+        if status not in ("open", "closed"):
+            return
+        data = {"roof": status}
+
+        # make post request to control server
+        try:
+            response = requests.post(TARGET_SERVER_URL + "roofupdate", json=data, timeout=5)
+            print(f"POSTed roof: {data} -> Status {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Failed to send roof: {e}")
+       
+def start_file_watcher():
+    observer = Observer()
+    observer.schedule(
+        FileChangeHandler(WATCH_FILE),
+        WATCH_DIR,
+        recursive=False
+    )
+    observer.start()
+
+
+    try:
+        while True:
+            time.sleep(1)
+    finally:
+        observer.stop()
+        observer.join()
 
 # Map numeric pin to board constant
 try:
@@ -44,6 +93,7 @@ app = Flask(__name__)
 last_temperature = None
 last_humidity = None
 last_update_time = None
+last_roof = None
 
 
 def read_dht():
@@ -58,7 +108,7 @@ def read_dht():
     return None
 
 
-def post_data():
+def post_dht11data():
     """Background thread to update and send data periodically."""
     global last_temperature, last_humidity, last_update_time
 
@@ -124,5 +174,10 @@ def get_roof_status():
     
 
 if __name__ == "__main__":
-    threading.Thread(target=post_data, daemon=True).start()
+    watcher_thread = threading.Thread(
+        target=start_file_watcher,
+        daemon=True
+    )
+    watcher_thread.start()
+    threading.Thread(target=post_dht11data, daemon=True).start()
     app.run(host="0.0.0.0", port=5000, debug=False)

@@ -1,96 +1,209 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import config from "../../config.json";
-import Grid from "@mui/material/Grid";
-import Button from "@mui/material/Button";
+import { Paper, Chip, Stack, Typography, Grid } from "@mui/material";
+import { useSocket } from "./SocketContext";
 
 function ObservatoryStatus() {
-  // get new temp/humidity reading every minute
-  const [tempC, setTempC] = useState(null);
-  const [tempC5min, setTempC5min] = useState(null);
-  const [tempF, setTempF] = useState(null);
-  const [tempF5min, setTempF5min] = useState(null);
-  const [humidity, setHumidity] = useState(null);
-  const [humidity5min, setHumidity5min] = useState(null);
-  const [roof, setRoof] = useState(null);
+  const { esp32Data, dht11, roof } = useSocket();
 
-  const fetchRoof = async () => {
-    try {
-      const response = await axios.get(`${config.controlUrl}/roofhistory/1`);
-      if (response.data?.[0]?.status === "open") {
-        setRoof(`Open`);
-      } else if (response.data?.[0]?.status === "closed") {
-        setRoof(`Closed`);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  fetchRoof();
-  useEffect(() => {
-    // make get request and update temp/humidity
-    // define async function inside useEffect
-    const fetchData = async () => {
-      try {
-        // get current readings
-        const response = await axios.get(
-          `${config.controlUrl}/dht11_readings/1`
-        );
-        setTempC(response.data?.[0]?.temperature.toFixed(1));
-        setTempF((response.data?.[0]?.temperature * (9 / 5) + 32).toFixed(1));
-        setHumidity(response.data?.[0]?.humidity.toFixed(0));
-        // get 5 min averages
-        const average = await axios.get(`${config.controlUrl}/dht11_5minavg`);
-        setTempC5min(average.data?.avg_temperature.toFixed(1));
-        setTempF5min((average.data?.avg_temperature * (9 / 5) + 32).toFixed(1));
-        setHumidity5min(average.data?.avg_humidity.toFixed(0));
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchData();
-    const interval = setInterval(() => {
-      fetchData();
-    }, 600000);
+  function cToF(temp) {
+    return (temp * 9) / 5 + 32;
+  }
 
-    return () => clearInterval(interval);
-  }, []);
+  function DHT11({ label, tempC, tempF, humidity }) {
+    return (
+      <>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Paper
+            elevation={1}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              px: 1.5,
+              py: 0.75,
+              borderRadius: "9px",
+              gap: 1,
+            }}
+          >
+            <Typography variant="body2" fontFamily="monospace">
+              {label}
+            </Typography>
+            <Stack direction="column" spacing={0}>
+              <Stack direction="row" spacing={1}>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`${tempC}°C`}
+                </Typography>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`/`}
+                </Typography>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`${tempF}°F`}
+                </Typography>
+              </Stack>
+              <Typography variant="body2" fontFamily="monospace">
+                {`${humidity}% RH`}
+              </Typography>
+            </Stack>
+          </Paper>
+        </Stack>
+      </>
+    );
+  }
+
+  function SHT4X({ label, tempC, tempF, humidity, dewpoint }) {
+    return (
+      <>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Paper
+            elevation={1}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              px: 1.5,
+              py: 0.75,
+              borderRadius: "9px",
+              gap: 1,
+            }}
+          >
+            <Typography variant="body2" fontFamily="monospace">
+              {label}
+            </Typography>
+            <Stack direction="column" spacing={0}>
+              <Stack direction="row" spacing={1}>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`${tempC}°C`}
+                </Typography>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`/`}
+                </Typography>
+                <Typography variant="body2" fontFamily="monospace">
+                  {`${tempF}°F`}
+                </Typography>
+              </Stack>
+              <Typography variant="body2" fontFamily="monospace">
+                {`${humidity}% RH`}
+              </Typography>
+
+              <Typography variant="body2" fontFamily="monospace">
+                {`DP: ${dewpoint}°C`}
+              </Typography>
+            </Stack>
+          </Paper>
+        </Stack>
+      </>
+    );
+  }
 
   return (
     <>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          justifyContent: "flex-start",
-          alignItems: "center",
-        }}
-      >
-        <h3>Status</h3>
-        <Button
-          variant="outlined"
-          style={{ maxHeight: "2.5em" }}
-          onClick={() => {
-            setRoof(null);
-            fetchRoof();
-          }}
-        >
-          Refresh
-        </Button>
-      </Grid>
-      <Grid container spacing={6} rowSpacing={2}>
-        {tempC !== null ? (
-          <span>
-            Current: {tempC}°C {tempF}°F {humidity}% RH
-          </span>
-        ) : null}
-        {tempC5min !== null ? (
-          <span>
-            5 Min Avg: {tempC5min}°C {tempF5min}°F {humidity5min}% RH
-          </span>
-        ) : null}
-      </Grid>
-      <p>Roof: {roof !== null ? `${roof}` : "Unknown"}</p>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={3}>
+        <div>
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              justifyContent: "flex-start",
+              alignItems: "center",
+            }}
+          >
+            <h3>Roof</h3>
+            <Chip
+              label={
+                roof?.status === "open"
+                  ? "Open"
+                  : roof?.status === "closed"
+                    ? "Closed"
+                    : "Unknown"
+              }
+              color={
+                roof?.status === "open"
+                  ? "success"
+                  : roof?.status === "closed"
+                    ? "error"
+                    : "default"
+              }
+              size="small"
+              variant="filled"
+            />
+          </Grid>
+
+          <Grid container>
+            {dht11?.temp != null ? (
+              <DHT11
+                label="RoofPi (DHT11)"
+                name="RoofPi"
+                tempC={dht11.temp}
+                tempF={cToF(dht11.temp).toFixed(1)}
+                humidity={dht11.humidity}
+              />
+            ) : null}
+          </Grid>
+        </div>
+
+        <div>
+          <h3>AllSky ESP32</h3>
+          {esp32Data.temp !== "N/A" ? (
+            <SHT4X
+              label="AllSky (SHT45)"
+              tempC={esp32Data.temp}
+              tempF={cToF(esp32Data.temp).toFixed(1)}
+              humidity={esp32Data.humidity}
+              dewpoint={esp32Data.dewpoint}
+            />
+          ) : null}
+          <Stack direction="row" spacing={0.5}>
+            <Chip
+              label={
+                `Fan: ${
+                  String(esp32Data.fan).charAt(0).toUpperCase() +
+                  String(esp32Data.fan).slice(1)
+                }` ?? "Unknown"
+              }
+              color={
+                esp32Data.fan === "on"
+                  ? "success"
+                  : esp32Data.fan === "off"
+                    ? "error"
+                    : "default"
+              }
+              size="small"
+              variant="filled"
+            />
+            <Chip
+              label={
+                `Dew Heater: ${
+                  String(esp32Data.dew).charAt(0).toUpperCase() +
+                  String(esp32Data.dew).slice(1)
+                }` ?? "Unknown"
+              }
+              color={
+                esp32Data.dew === "on"
+                  ? "success"
+                  : esp32Data.dew === "off"
+                    ? "error"
+                    : "default"
+              }
+              size="small"
+              variant="filled"
+            />
+            <Chip
+              label={
+                `Mode: ${
+                  String(esp32Data.mode).charAt(0).toUpperCase() +
+                  String(esp32Data.mode).slice(1)
+                }` ?? "Unknown"
+              }
+              color={
+                esp32Data.mode === "auto"
+                  ? "info"
+                  : esp32Data.mode === "manual"
+                    ? "warning"
+                    : "default"
+              }
+              size="small"
+              variant="filled"
+            />
+          </Stack>
+        </div>
+      </Stack>
     </>
   );
 }

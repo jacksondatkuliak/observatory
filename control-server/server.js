@@ -1,13 +1,21 @@
-import express from "express";
-import bodyParser from "body-parser";
-import Database from "better-sqlite3";
-import path from "path";
-import fs from "fs";
-import cors from "cors";
+const express = require("express");
+const bodyParser = require("body-parser");
+const Database = require("better-sqlite3");
+const path = require("path");
+const cors = require("cors");
+const fs = require("fs");
 
 // --- Setup ---
 var app = express();
-const PORT = 8080;
+
+// websocket
+const httpServer = require("http").createServer(app);
+const io = require("socket.io")(httpServer, {
+  path: "/",
+  cors: {
+    origin: "http://localhost:3002",
+  },
+});
 
 app.use(cors());
 
@@ -40,6 +48,30 @@ db.exec(`
 
 app.use(bodyParser.json());
 
+// --- Websocket ---
+
+function cToF(temp) {
+  return (temp * 9) / 5 + 32;
+}
+
+// inital values for dht11
+const initValues = db
+  .prepare(`SELECT * FROM readings ORDER BY timestamp DESC LIMIT 1`)
+  .all();
+let latestTemperatureC = initValues["temperature"];
+let latestTemperatureF = cToF(latestTemperatureC);
+let latestHumiditiy = initValues["humidity"];
+
+io.on("connection", (socket) => {
+  console.log(socket.id + " connected");
+  let dht11Data = { temp: latestTemperatureC, humidity: latestHumiditiy };
+  socket.emit("dht11", dht11Data);
+  const rows = db
+    .prepare(`SELECT * FROM roof_log ORDER BY timestamp DESC LIMIT 1`)
+    .all();
+  socket.emit("roof", rows[0]);
+});
+
 // --- Routes ---
 
 // POST endpoint for Raspberry Pi to send data
@@ -53,9 +85,17 @@ app.post("/dht11", (req, res) => {
   }
 
   const stmt = db.prepare(
-    "INSERT INTO readings (temperature, humidity) VALUES (?, ?)"
+    "INSERT INTO readings (temperature, humidity) VALUES (?, ?)",
   );
   stmt.run(temperature, humidity);
+
+  // update local global variables
+  latestTemperatureC = temperature;
+  latestTemperatureF = cToF(latestTemperatureC);
+  latestHumiditiy = humidity;
+
+  let dht11Data = { temp: latestTemperatureC, humidity: latestHumiditiy };
+  io.emit("dht11", dht11Data);
 
   res.json({ status: "OK" });
 });
@@ -78,7 +118,7 @@ app.get("/dht11_5minavg", (req, res) => {
       AVG(humidity) AS avg_humidity
     FROM readings
     WHERE timestamp >= datetime('now', '-5 minutes')
-  `
+  `,
     )
     .get();
   res.json(row);
@@ -104,6 +144,11 @@ app.post("/roofupdate", (req, res) => {
     const insert = db.prepare("INSERT INTO roof_log (status) VALUES (?)");
     insert.run(status);
 
+    const rows = db
+      .prepare(`SELECT * FROM roof_log ORDER BY timestamp DESC LIMIT 1`)
+      .all();
+    io.emit("roof", rows[0]);
+
     console.log(`Roof status logged: ${status} at ${new Date().toISOString()}`);
 
     res.json({ message: "Roof status logged successfully", roof: status });
@@ -124,6 +169,10 @@ app.get("/roofhistory/:readings", (req, res) => {
 });
 
 // --- Start server ---
-app.listen(PORT, () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+app.listen(8080, "0.0.0.0", () => {
+  console.log("http listening on port 8080");
+});
+
+httpServer.listen(3002, "0.0.0.0", () => {
+  console.log("socket listening on port 3002");
 });

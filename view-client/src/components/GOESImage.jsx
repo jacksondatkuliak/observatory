@@ -1,10 +1,13 @@
-import Box from "@mui/material/Box";
 import config from "../../config.json";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import NativeSelect from "@mui/material/NativeSelect";
+import {
+  Link,
+  NativeSelect,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+  Box,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 
 /**
@@ -19,7 +22,7 @@ function GOESImage() {
   // helper to build URL based on current channel
   const buildURL = (ch) => {
     const base = ch === "EXTENT3" ? config.GOESUrlGLM : config.GOESUrlABI;
-    return `${base}${ch}/2400x2400.jpg?t=${Date.now()}`; // cache-busting timestamp
+    return `${base}${ch}/2400x2400.jpg?t=${Date.now()}`;
   };
   // handle user changing image
   const handleChange = (event) => {
@@ -41,7 +44,7 @@ function GOESImage() {
       {/* image */}
       <Box
         sx={{
-          width: { xs: "100%", sm: 600 }, // final displayed size
+          width: { xs: "100%", sm: 600, md: 750 }, // final displayed size
           height: "auto",
           aspectRatio: "1 / 1",
           overflow: "hidden", // crop
@@ -64,28 +67,44 @@ function GOESImage() {
           }}
         />
       </Box>
-      {/* channel selector dropdown */}
-      <Box style={{ paddingTop: "0.25rem" }}>
-        <FormControl
-          sx={{ m: 1, minWidth: 120 }}
-          size="small"
-          variant="standard"
-        >
-          <InputLabel htmlFor="uncontrolled-native">Channel</InputLabel>
-          <Select
-            defaultValue={channel}
-            label="Channel"
-            onChange={handleChange}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1, // space between dropdown and text
+        }}
+      >
+        {/* channel selector dropdown */}
+        <Box>
+          <FormControl
+            sx={{ m: 1, minWidth: 120 }}
+            size="small"
+            variant="standard"
           >
-            <MenuItem value={"GEOCOLOR"}>GeoColor</MenuItem>
-            <MenuItem value={"EXTENT3"}>GLM FED3+GeoColor</MenuItem>
-            <MenuItem value={"AirMass"}>AirMass RGB</MenuItem>
-            <MenuItem value={"Sandwich"}>Sandwich RGB</MenuItem>
-            <MenuItem value={"DayNightCloudMicroCombo"}>
-              Cloud Micro Combo RGB
-            </MenuItem>
-          </Select>
-        </FormControl>
+            <InputLabel>Channel</InputLabel>
+            <Select
+              defaultValue={channel}
+              label="Channel"
+              onChange={handleChange}
+            >
+              <MenuItem value="GEOCOLOR">GeoColor</MenuItem>
+              <MenuItem value="EXTENT3">GLM FED3+GeoColor</MenuItem>
+              <MenuItem value="AirMass">AirMass RGB</MenuItem>
+              <MenuItem value="Sandwich">Sandwich RGB</MenuItem>
+              <MenuItem value="DayNightCloudMicroCombo">
+                Cloud Micro Combo RGB
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Link
+          href="https://www.star.nesdis.noaa.gov/goes/sector.php?sat=G16&sector=cgl"
+          underline="none"
+          target="_blank"
+        >
+          GOESViewer
+        </Link>
       </Box>
     </>
   );

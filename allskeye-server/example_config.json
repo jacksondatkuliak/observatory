@@ -1,3 +1,4 @@
 {
-  "latestImagePath": "C:\\Users\\you\\path\\to\\your\\latest.jpg"
+  "latestImagePath": "C:\\Users\\you\\path\\to\\your\\latest.jpg",
+  "esp32_ip": "0.0.0.0:80"
 }

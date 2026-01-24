@@ -10,7 +10,7 @@ The gate openers control circuit has a place to wire in two manual control wires
 All you have to do is send a HIGH (5v) signal from the Raspberry Pi GPIO to those wires and the gate opener will open/close.
 Extra code is just for keeping a log of roof state for troubleshooting. Note that the gate opener I have (and I assume most others)
 require that the HIGH signal be present for at least half a second for it to trigger. I assume this is a built in protection to
-insure the gate opener doesn't accidentally toggle with erroneous signals. However, I would strongly recommend using a GPIO pin that
-defaults to LOW. I also used a 5V relay with the Pi's 5V rail wired to NO (normally open) to insure that the signal going to the roof would without a doubt be registered as HIGH. This also gives some extra protection from erroneous signals.
+ensure the gate opener doesn't accidentally toggle with erroneous signals. However, I would strongly recommend using a GPIO pin that
+defaults to LOW. I also used a 5V relay with the Pi's 5V rail wired to NO (normally open) to insure that the signal going to the roof would without a doubt be registered as HIGH.
 
 Example gate opener: https://www.amazon.com/dp/B078GQCF6G (buy one that is rated a decent amount above the weight of your roof. don't ask how I know)
