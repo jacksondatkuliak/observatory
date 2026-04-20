@@ -7,6 +7,7 @@ import {
   MenuItem,
   InputLabel,
   Box,
+  Button,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 
@@ -17,7 +18,7 @@ function GOESImage() {
   // make the URL EXTENT3 by default
   const [channel, setChannel] = useState("EXTENT3");
   const [url, setURL] = useState(
-    `${config.GOESUrlGLM}EXTENT3/2400x2400.jpg?t=${Date.now()}`
+    `${config.GOESUrlGLM}EXTENT3/2400x2400.jpg?t=${Date.now()}`,
   );
   // helper to build URL based on current channel
   const buildURL = (ch) => {
@@ -57,13 +58,11 @@ function GOESImage() {
           alt="cropped"
           sx={{
             position: "absolute",
-            // TODO: put these in the config file
-            top: "-45%", // shift crop area vertically
-            left: "-57%", // shift crop area horizontally
-            width: "200%", // zoom: increase to scale up
+            top: config.GOEStop,
+            left: config.GOESleft,
+            width: config.GOESwidth,
             height: "auto",
             objectFit: "cover",
-            maxWidth: "none",
           }}
         />
       </Box>
@@ -74,6 +73,17 @@ function GOESImage() {
           gap: 1, // space between dropdown and text
         }}
       >
+        <Button variant="contained" color="inherit" sx={{ margin: "0.2em" }}>
+          <Link
+            href="https://www.star.nesdis.noaa.gov/goes/sector.php?sat=G16&sector=cgl"
+            underline="none"
+            target="_blank"
+            color="white"
+          >
+            GOESViewer
+          </Link>
+        </Button>
+
         {/* channel selector dropdown */}
         <Box>
           <FormControl
@@ -82,29 +92,21 @@ function GOESImage() {
             variant="standard"
           >
             <InputLabel>Channel</InputLabel>
-            <Select
+            <NativeSelect
               defaultValue={channel}
               label="Channel"
               onChange={handleChange}
             >
-              <MenuItem value="GEOCOLOR">GeoColor</MenuItem>
-              <MenuItem value="EXTENT3">GLM FED3+GeoColor</MenuItem>
-              <MenuItem value="AirMass">AirMass RGB</MenuItem>
-              <MenuItem value="Sandwich">Sandwich RGB</MenuItem>
-              <MenuItem value="DayNightCloudMicroCombo">
+              <option value="GEOCOLOR">GeoColor</option>
+              <option value="EXTENT3">GLM FED3+GeoColor</option>
+              <option value="AirMass">AirMass RGB</option>
+              <option value="Sandwich">Sandwich RGB</option>
+              <option value="DayNightCloudMicroCombo">
                 Cloud Micro Combo RGB
-              </MenuItem>
-            </Select>
+              </option>
+            </NativeSelect>
           </FormControl>
         </Box>
-
-        <Link
-          href="https://www.star.nesdis.noaa.gov/goes/sector.php?sat=G16&sector=cgl"
-          underline="none"
-          target="_blank"
-        >
-          GOESViewer
-        </Link>
       </Box>
     </>
   );

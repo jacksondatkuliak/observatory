@@ -1,0 +1,4 @@
+{
+  "pingDevices": ["ip1", "ip2"],
+  "pingInterval": 30000
+}

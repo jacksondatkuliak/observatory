@@ -6,7 +6,7 @@ const cors = require("cors");
 const fs = require("fs");
 
 // --- Setup ---
-var app = express();
+let app = express();
 
 // websocket
 const httpServer = require("http").createServer(app);
@@ -48,8 +48,6 @@ db.exec(`
 
 app.use(bodyParser.json());
 
-// --- Websocket ---
-
 function cToF(temp) {
   return (temp * 9) / 5 + 32;
 }
@@ -66,6 +64,8 @@ io.on("connection", (socket) => {
   console.log(socket.id + " connected");
   let dht11Data = { temp: latestTemperatureC, humidity: latestHumiditiy };
   socket.emit("dht11", dht11Data);
+  socket.emit("deviceStatus", deviceStatus);
+
   const rows = db
     .prepare(`SELECT * FROM roof_log ORDER BY timestamp DESC LIMIT 1`)
     .all();
@@ -158,7 +158,6 @@ app.post("/roofupdate", (req, res) => {
   }
 });
 
-// Optional: GET route to view latest logs
 app.get("/roofhistory/:readings", (req, res) => {
   // req.params.readings is number of readings to get from database
   const readings = req.params.readings || 1; // default to 1 if no value passed
@@ -176,3 +175,57 @@ app.listen(8080, "0.0.0.0", () => {
 httpServer.listen(3002, "0.0.0.0", () => {
   console.log("socket listening on port 3002");
 });
+
+// device ping
+
+const config = require("./config.json");
+const ping = require("ping");
+const DEVICES = config.pingDevices;
+
+// The status object — keys match DEVICES, values are booleans
+const deviceStatus = Object.fromEntries(
+  Object.keys(DEVICES).map((name) => [name, false]),
+);
+
+//Pings all devices once and updates deviceStatus in place.
+async function pingAll() {
+  const results = await Promise.allSettled(
+    Object.entries(DEVICES).map(async ([name, host]) => {
+      let res = await ping.promise.probe(host, { timeout: 5 });
+      if (!res.alive) {
+        // do another ping to be sure it's down
+        res = await ping.promise.probe(host, { timeout: 5 });
+      }
+      deviceStatus[name] = res.alive;
+    }),
+  );
+
+  // Log any unexpected errors (not just dead hosts)
+  results.forEach((result, i) => {
+    if (result.status === "rejected") {
+      const name = Object.keys(DEVICES)[i];
+      console.error(`Error pinging "${name}":`, result.reason);
+    }
+  });
+
+  // send new websocket status
+  io.emit("deviceStatus", deviceStatus);
+}
+
+/**
+ * Starts the device polling loop.
+ *
+ * @returns {Function} stop
+ */
+function startPinging() {
+  pingAll(); // fire immediately so status isn't stale on first request
+
+  const timer = setInterval(pingAll, config.pingInterval);
+
+  // Allow clean shutdown
+  return function stop() {
+    clearInterval(timer);
+  };
+}
+
+startPinging();

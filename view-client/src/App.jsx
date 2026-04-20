@@ -1,17 +1,13 @@
-import { useSocket } from "./components/SocketContext";
-import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import GOESImage from "./components/GOESImage";
 import ObservatoryStatus from "./components/ObservatoryStatus";
-//import config from "../config.json";
+import Forecast from "./components/Forecast";
+import NINAStatus from "./components/NINAStatus";
 
 /**
  * Observatory viewer entry point
  */
 function App() {
-  // allsky image
-  const { image } = useSocket();
-
   return (
     <>
       <Grid
@@ -20,23 +16,14 @@ function App() {
         sx={{ maxWidth: 1 }}
         style={{ padding: "0.5rem" }}
       >
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <Box>
-            {/* render allsky camera image */}
-            {image === null ? (
-              <p>No AllSkEye image</p>
-            ) : (
-              <>
-                <img src={image} alt="Latest Image" style={{ width: "100%" }} />
-              </>
-            )}
-          </Box>
-          {/* temperature/humidity/roofstatus readings */}
+        <Grid size={{ sm: 12, md: 6 }}>
           <ObservatoryStatus />
+          <NINAStatus />
         </Grid>
         {/* GOES image viewer */}
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 12, md: 6 }}>
           <GOESImage />
+          <Forecast />
         </Grid>
       </Grid>
     </>

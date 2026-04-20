@@ -20,18 +20,18 @@ const INITIAL_ESP32_STATE = {
 };
 
 export function SocketProvider({ children }) {
-  const [socket, setSocket] = useState(null);
   const [image, setImage] = useState(null);
   const [esp32Data, setEsp32Data] = useState(INITIAL_ESP32_STATE);
+  const [NINAData, setNINAData] = useState(null);
 
   const [dht11, setDHT11] = useState(null);
   const [roof, setRoof] = useState(null);
+  const [deviceStatus, setDeviceStatus] = useState(null);
 
   useEffect(() => {
     const newSocket = io(`${config.allskeyeUrl}:3002`, {
       transports: ["websocket"],
     });
-    setSocket(newSocket);
 
     newSocket.on("connect", () => console.log("AllSkEye connected"));
     newSocket.on("disconnect", () => console.log("AllSkEye disconnected"));
@@ -63,7 +63,6 @@ export function SocketProvider({ children }) {
     const newSocket2 = io(`${config.controlUrl}:3002`, {
       transports: ["websocket"],
     });
-    setSocket(newSocket2);
 
     newSocket2.on("connect", () => console.log("Control connected"));
     newSocket2.on("disconnect", () => console.log("Control disconnected"));
@@ -82,13 +81,23 @@ export function SocketProvider({ children }) {
       }));
     });
 
+    newSocket2.on("deviceStatus", (data) => {
+      setDeviceStatus(data);
+    });
+
+    newSocket2.on("NINAData", (data) => {
+      setNINAData(data);
+    });
+
     return () => {
       newSocket2.disconnect();
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, image, esp32Data, dht11, roof }}>
+    <SocketContext.Provider
+      value={{ image, esp32Data, dht11, roof, deviceStatus, NINAData }}
+    >
       {children}
     </SocketContext.Provider>
   );
