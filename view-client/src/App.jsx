@@ -13,11 +13,12 @@ function App() {
       <Grid
         container
         spacing={2}
-        sx={{ maxWidth: 1 }}
+        sx={{ maxWidth: 0.99 }}
         style={{ padding: "0.5rem" }}
       >
         <Grid size={{ sm: 12, md: 6 }}>
           <ObservatoryStatus />
+
           <NINAStatus />
         </Grid>
         {/* GOES image viewer */}

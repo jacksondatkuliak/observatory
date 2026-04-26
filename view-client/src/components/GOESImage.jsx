@@ -75,7 +75,7 @@ function GOESImage() {
       >
         <Button variant="contained" color="inherit" sx={{ margin: "0.2em" }}>
           <Link
-            href="https://www.star.nesdis.noaa.gov/goes/sector.php?sat=G16&sector=cgl"
+            href={config.externalGOESUrl}
             underline="none"
             target="_blank"
             color="white"

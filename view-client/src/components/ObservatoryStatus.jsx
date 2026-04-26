@@ -151,7 +151,7 @@ function ObservatoryStatus() {
       <Stack spacing={{ xs: 0 }}>
         <div>
           <Stack
-            direction={{ lg: "column", xl: "row" }}
+            direction={{ sm: "column", lg: "row" }}
             spacing={0.5}
             sx={{ marginTop: "0.2em" }}
           >

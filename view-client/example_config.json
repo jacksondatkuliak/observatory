@@ -1,7 +1,14 @@
 {
   "allskeyeUrl": "http://your-allskeye",
-  "GOESUrlABI": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/cgl/",
-  "GOESUrlGLM": "https://cdn.star.nesdis.noaa.gov/GOES19/GLM/SECTOR/cgl/",
+  "GOESUrlABI": "https://cdn.star.nesdis.noaa.gov/GOES19/ABI/SECTOR/*/",
+  "GOESUrlGLM": "https://cdn.star.nesdis.noaa.gov/GOES19/GLM/SECTOR/*/",
+  "externalGOESUrl": "https://www.star.nesdis.noaa.gov/goes/sector.php?sat=*&sector=*",
   "controlUrl": "http://yourserver",
-  "NINAUrl": "http://astro-allsky"
+  "NINAUrl": "http://yournina",
+  "clearOutsideImageUrl": "https://clearoutside.com/forecast_image_large/*/*/forecast.png",
+  "clearOutsideUrl": "https://clearoutside.com/forecast/*/*",
+  "astrosphericUrl": "https://www.astrospheric.com/?Latitude=*&Longitude=*&Loc=Forecast",
+  "GOEStop": "*%",
+  "GOESleft": "*%",
+  "GOESwidth": "*%"
 }
